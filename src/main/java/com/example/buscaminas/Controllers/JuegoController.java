@@ -156,7 +156,9 @@ public class JuegoController {
         int columna = id % columnas;
 
         for (int df = -1; df <= 1; df++) {
+
             for (int dc = -1; dc <= 1; dc++) {
+
                 if (df == 0 && dc == 0) continue;
 
                 int nuevaFila = fila + df;
