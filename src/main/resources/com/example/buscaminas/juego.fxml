@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.buscaminas.Controllers.JuegoController">
+
+    <GridPane fx:id="tablero" prefHeight="600" prefWidth="600" VBox.vgrow="ALWAYS" hgap="5" vgap="5"
+    alignment="CENTER">
+
+    </GridPane>
+
+</VBox>
