@@ -70,7 +70,7 @@ public class JuegoController {
     }
 
     protected StackPane crearCasilla() {
-        Rectangle casilla = new Rectangle(50, 50);
+        Rectangle casilla = new Rectangle(25, 25);
         casilla.setStroke(Color.BLACK);
         casilla.setFill(Color.LIGHTGRAY);
 
@@ -178,8 +178,19 @@ public class JuegoController {
         hijo.setFill(Color.WHITE);
         Label numBombas = new Label(String.valueOf(bombas));
         numBombas.setText(String.valueOf(bombas));
-        numBombas.setStyle("-fx-font-weight: bold; -fx-font-size: 24");
-        numBombas.setTextFill(Color.RED);
+        numBombas.setStyle("-fx-font-weight: bold; -fx-font-size: 17");
+
+        switch (bombas) {
+            case 1 -> numBombas.setTextFill(Color.BLUE);
+            case 2 -> numBombas.setTextFill(Color.GREEN);
+            case 3 -> numBombas.setTextFill(Color.RED);
+            case 4 -> numBombas.setTextFill(Color.DARKBLUE);
+            case 5 -> numBombas.setTextFill(Color.DARKRED);
+            case 6 -> numBombas.setTextFill(Color.DARKTURQUOISE);
+            case 7 -> numBombas.setTextFill(Color.BLACK);
+            case 8 -> numBombas.setTextFill(Color.GRAY);
+
+        }
 
         padre.getChildren().clear();
         padre.getChildren().addAll(hijo, numBombas);

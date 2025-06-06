@@ -12,17 +12,17 @@ public class MenuController {
 
     @FXML
     protected void iniciarFacil() {
-        abrirJuego(5);
-    }
-
-    @FXML
-    protected void iniciarIntermedio() {
         abrirJuego(7);
     }
 
     @FXML
+    protected void iniciarIntermedio() {
+        abrirJuego(12);
+    }
+
+    @FXML
     protected void iniciarDificil() {
-        abrirJuego(9);
+        abrirJuego(18);
     }
 
     @FXML
