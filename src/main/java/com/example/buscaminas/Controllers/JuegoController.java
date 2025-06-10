@@ -2,15 +2,19 @@ package com.example.buscaminas.Controllers;
 
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 import java.net.URL;
@@ -23,16 +27,26 @@ public class JuegoController {
 
     @FXML
     protected GridPane tablero;
+    @FXML
+    protected Label contadorBanderas;
 
     int columnasSta;
+    int banderasPuestas = 0;
+    int bombasGlob;
+
     private EventHandler<MouseEvent> bombHandler = BOMB();
     private EventHandler<MouseEvent> safeHandler = noBOMB();
 
     protected void generarTablero(int columnas) {
+        contadorBanderas.setMaxWidth(Double.MAX_VALUE);
+        contadorBanderas.setAlignment(Pos.CENTER);
+
         columnasSta = columnas;
         List<Integer> bombasPuestas = new ArrayList<>();
         int filas = columnas;
         int bombas = (columnas*columnas * 15) / 100;
+        bombasGlob = bombas;
+        contadorBanderas.setText("🚩 " + banderasPuestas + " / " + bombas);
 
         tablero.getChildren().clear();
         tablero.getColumnConstraints().clear();
@@ -80,29 +94,77 @@ public class JuegoController {
 
     protected EventHandler<MouseEvent> BOMB() {
         return event -> {
-            URL sUrl = getClass().getResource("/sr.mp3");
-            if (sUrl != null) {
-                AudioClip audioClip = new AudioClip(sUrl.toString());
-                audioClip.play();
+            if (event.getButton() == MouseButton.SECONDARY) {
+                ponerBandera().handle(event);
+
+            } else if (event.getButton() == MouseButton.PRIMARY) {
+                if (checkBandera(event)) return;
+
+                URL sUrl = getClass().getResource("/sr.mp3");
+                if (sUrl != null) {
+                    AudioClip audioClip = new AudioClip(sUrl.toString());
+                    audioClip.play();
+                }
+
+                Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+                alerta.setContentText("💣 BOMB");
+                alerta.showAndWait();
+
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                stage.close();
             }
-
-            Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-            alerta.setContentText("💣 BOMB");
-            alerta.showAndWait();
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.close();
         };
     }
 
     protected EventHandler<MouseEvent> noBOMB() {
         return event -> {
-            StackPane stackPane = (StackPane) event.getSource();
-            Rectangle hijo = (Rectangle) stackPane.getChildren().getFirst();
-            hijo.setFill(Color.WHITE);
+            if (event.getButton() == MouseButton.SECONDARY) {
+                ponerBandera().handle(event);
 
-            comprobarAlrededor(stackPane);
+            } else if (event.getButton() == MouseButton.PRIMARY) {
+                StackPane stackPane = (StackPane) event.getSource();
+
+                if (checkBandera(event)) return;
+
+                Rectangle hijo = (Rectangle) stackPane.getChildren().getFirst();
+                hijo.setFill(Color.WHITE);
+
+                comprobarAlrededor(stackPane);
+            }
         };
+    }
+
+    protected EventHandler<MouseEvent> ponerBandera() {
+        return event -> {
+            StackPane stackPane = (StackPane) event.getSource();
+
+            Optional<Node> bandera = stackPane.getChildren().stream()
+                    .filter(n -> n instanceof Label && "🚩".equals(((Label) n).getText()))
+                    .findFirst();
+
+            if (bandera.isPresent()) {
+                stackPane.getChildren().remove(bandera.get());
+                banderasPuestas--;
+                contadorBanderas.setText("🚩 " + banderasPuestas + " / " + bombasGlob);
+            } else {
+
+                Label banderaLabel = new Label("🚩");
+                banderaLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+                stackPane.getChildren().add(banderaLabel);
+                banderasPuestas++;
+                contadorBanderas.setText("🚩 " + banderasPuestas + " / " + bombasGlob);
+            }
+            event.consume();
+        };
+    }
+
+    protected boolean checkBandera(MouseEvent event) {
+        StackPane stackPane = (StackPane) event.getSource();
+
+        boolean marcado = stackPane.getChildren().stream()
+                .anyMatch(p -> p instanceof Label && "🚩".equals(((Label) p).getText()));
+
+        return marcado;
     }
 
     protected void comprobarAlrededor(StackPane stackPane) {
