@@ -33,26 +33,31 @@ public class JuegoController {
     int columnasSta;
     int banderasPuestas = 0;
     int bombasGlob;
+    int casillasTotal;
 
     private EventHandler<MouseEvent> bombHandler = BOMB();
     private EventHandler<MouseEvent> safeHandler = noBOMB();
+    private EventHandler<MouseEvent> discoveredHandler = event ->  {};
+
 
     protected void generarTablero(int columnas) {
         contadorBanderas.setMaxWidth(Double.MAX_VALUE);
         contadorBanderas.setAlignment(Pos.CENTER);
 
         columnasSta = columnas;
+        casillasTotal = columnas * columnas;
+
         List<Integer> bombasPuestas = new ArrayList<>();
-        int filas = columnas;
         int bombas = (columnas*columnas * 15) / 100;
         bombasGlob = bombas;
+
         contadorBanderas.setText("🚩 " + banderasPuestas + " / " + bombas);
 
         tablero.getChildren().clear();
         tablero.getColumnConstraints().clear();
         tablero.getRowConstraints().clear();
 
-        for (int i = 0; i < columnas*filas; i++) {
+        for (int i = 0; i < casillasTotal; i++) {
             StackPane casilla = crearCasilla();
 
             int fila = i / columnas;
@@ -129,7 +134,12 @@ public class JuegoController {
                 Rectangle hijo = (Rectangle) stackPane.getChildren().getFirst();
                 hijo.setFill(Color.WHITE);
 
+                stackPane.setOnMouseClicked(discoveredHandler);
+
                 comprobarAlrededor(stackPane);
+
+                if (victoria())
+                    ganar(event);
             }
         };
     }
@@ -178,7 +188,7 @@ public class JuegoController {
         for (Integer vecino : vecinos) {
             padre = (StackPane) tablero.getChildren().get(vecino);
 
-            if (padre.getOnMouseClicked() == null) continue;
+            if (padre.getOnMouseClicked() == discoveredHandler) continue;
             if (padre.getOnMouseClicked() == bombHandler) continue;
 
             bombas = 0;
@@ -195,11 +205,11 @@ public class JuegoController {
 
             if (bombas > 0) {
                 ponerNumeros(hijo, padre, bombas);
-                padre.setOnMouseClicked(null);
+                padre.setOnMouseClicked(discoveredHandler);
 
             } else {
                 hijo.setFill(Color.WHITE);
-                padre.setOnMouseClicked(null);
+                padre.setOnMouseClicked(discoveredHandler);
 
                 comprobarAlrededor(padre);
             }
@@ -256,5 +266,19 @@ public class JuegoController {
 
         padre.getChildren().clear();
         padre.getChildren().addAll(hijo, numBombas);
+    }
+
+    protected boolean victoria() {
+        return tablero.getChildren().stream()
+                .noneMatch(p -> p.getOnMouseClicked() == safeHandler);
+    }
+
+    protected void ganar(MouseEvent event) {
+        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+        alerta.setContentText("🏆 ¡HAS GANADO!");
+        alerta.showAndWait();
+
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.close();
     }
 }
