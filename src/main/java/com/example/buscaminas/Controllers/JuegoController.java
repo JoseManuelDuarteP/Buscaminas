@@ -1,5 +1,7 @@
 package com.example.buscaminas.Controllers;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -16,12 +18,10 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 public class JuegoController {
 
@@ -29,16 +29,20 @@ public class JuegoController {
     protected GridPane tablero;
     @FXML
     protected Label contadorBanderas;
+    @FXML
+    protected Label reloj;
 
     int columnasSta;
     int banderasPuestas = 0;
     int bombasGlob;
     int casillasTotal;
 
+    Timeline timeline;
+    int segundos;
+
     private EventHandler<MouseEvent> bombHandler = BOMB();
     private EventHandler<MouseEvent> safeHandler = noBOMB();
     private EventHandler<MouseEvent> discoveredHandler = event ->  {};
-
 
     protected void generarTablero(int columnas) {
         contadorBanderas.setMaxWidth(Double.MAX_VALUE);
@@ -86,6 +90,7 @@ public class JuegoController {
             yi.ifPresent(y -> y.setOnMouseClicked(bombHandler));
         }
         bombasPuestas.sort(null);
+        iniciarReloj();
     }
 
     protected StackPane crearCasilla() {
@@ -110,12 +115,14 @@ public class JuegoController {
                     AudioClip audioClip = new AudioClip(sUrl.toString());
                     audioClip.play();
                 }
+                detenerTiempo();
 
                 Alert alerta = new Alert(Alert.AlertType.INFORMATION);
                 alerta.setContentText("💣 BOMB");
                 alerta.showAndWait();
 
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
                 stage.close();
             }
         };
@@ -274,11 +281,30 @@ public class JuegoController {
     }
 
     protected void ganar(MouseEvent event) {
+        detenerTiempo();
+
         Alert alerta = new Alert(Alert.AlertType.INFORMATION);
         alerta.setContentText("🏆 ¡HAS GANADO!");
         alerta.showAndWait();
 
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.close();
+    }
+
+    protected void iniciarReloj() {
+        segundos = 0;
+        reloj.setText("⏱ 0s");
+
+        timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            segundos++;
+            reloj.setText("⏱ " + segundos + "s");
+        }));
+
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
+    }
+
+    protected void detenerTiempo() {
+        timeline.stop();
     }
 }

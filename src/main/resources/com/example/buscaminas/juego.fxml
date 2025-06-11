@@ -5,7 +5,14 @@
 
 <VBox spacing="10" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.buscaminas.Controllers.JuegoController">
 
-    <Label fx:id="contadorBanderas" style="-fx-font-size: 12"/>
+    <HBox alignment="CENTER">
+        <Label fx:id="reloj" style="-fx-font-size: 20"/>
+        <Pane HBox.hgrow="ALWAYS"/>
+        <Label fx:id="contadorBanderas" style="-fx-font-size: 20"/>
+        <Pane HBox.hgrow="ALWAYS"/>
+    </HBox>
+
+
 
     <GridPane fx:id="tablero" alignment="CENTER" hgap="5" prefHeight="0" prefWidth="0" vgap="5" VBox.vgrow="ALWAYS">
 
